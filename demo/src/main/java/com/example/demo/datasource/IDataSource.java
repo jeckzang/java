@@ -4,10 +4,18 @@ import java.io.File;
 import java.util.Date;
 import java.util.List;
 
+import com.example.demo.datasource.repositories.RuKuData;
+import com.example.demo.datasource.repositories.RunTimeData;
+
 public interface IDataSource {
-	List<RunTimeData> getRunTimeDataByDate(Date from, Date to, File file);
 
-	List<RuKuData> getRuKuDataByDate(Date from, Date to, File file);
+	void importRunTimeData(File file);
 
-	List<BookAndTypeData> getBookAndTypeData(File file);
+	void importRuKuData(File file);
+
+	void importBookAndTypeData(File file);
+
+	List<RunTimeData> getRunTimeDataByDate(String search, Date from, Date to);
+
+	List<RuKuData> getRuKuDataByDate(String search, Date from, Date to);
 }

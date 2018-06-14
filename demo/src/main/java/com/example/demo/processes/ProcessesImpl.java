@@ -1,5 +1,6 @@
 package com.example.demo.processes;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
@@ -16,9 +17,8 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.example.demo.datasource.BookAndTypeData;
-import com.example.demo.datasource.RuKuData;
-import com.example.demo.datasource.RunTimeData;
+import com.example.demo.datasource.repositories.RuKuData;
+import com.example.demo.datasource.repositories.RunTimeData;
 import com.example.demo.repositories.IBusinessTypeRepository;
 import com.example.demo.repositories.ITableARepository;
 import com.example.demo.repositories.ITableBRepository;
@@ -96,7 +96,7 @@ public class ProcessesImpl implements IProcesses {
 			Map<String, TableC1> tableC1Old = new TreeMap<>();
 			Map<String, TableC2> tableC2Old = new TreeMap<>();
 			oldData.stream().sorted((b1, b2) -> b1.getTongZhiRiQi().compareTo(b2.getTongZhiRiQi())).forEach(m -> {
-				processTableB(to, tableBOld, m, allBusinessTypeMap);
+				processTableB(from, to, tableBOld, m, allBusinessTypeMap);
 				processTableC1(to, tableC1Old, m, allBusinessTypeMap);
 				processTableC2(to, tableC2Old, m, allBusinessTypeMap);
 			});
@@ -105,7 +105,7 @@ public class ProcessesImpl implements IProcesses {
 			Map<String, TableC1> tableC1 = new TreeMap<>();
 			Map<String, TableC2> tableC2 = new TreeMap<>();
 			data.stream().sorted((b1, b2) -> b1.getTongZhiRiQi().compareTo(b2.getTongZhiRiQi())).forEach(m -> {
-				processTableB(to, tableB, m, allBusinessTypeMap);
+				processTableB(from, to, tableB, m, allBusinessTypeMap);
 				processTableC1(to, tableC1, m, allBusinessTypeMap);
 				processTableC2(to, tableC2, m, allBusinessTypeMap);
 			});
@@ -115,23 +115,21 @@ public class ProcessesImpl implements IProcesses {
 				if (tableBOld.get(b.getBookName()) != null) {
 					float currentCount = b.getCount();
 					float increase = 0;
-					if (tableBOld.get(b.getBookName()).getCount() == 0) {
-						b.setIncrease("no old data");
-					} else {
+					if (tableBOld.get(b.getBookName()).getCount() != 0) {
 						increase = (currentCount / tableBOld.get(b.getBookName()).getCount() - 1) * 100;
 					}
-					b.setIncrease(increase + "");
+					b.setIncrease(String.format("%.2f", increase) + "");
 				}
 			});
 
 			// tableC proportion
 			tableC1.values().stream().forEach(c -> {
 				float count = c.getCount();
-				c.setProportion((count / data.size() * 100) + "");
+				c.setProportion(String.format("%.2f", (count / data.size() * 100)) + "");
 			});
 			tableC2.values().stream().forEach(c -> {
 				float count = c.getCount();
-				c.setProportion((count / data.size() * 100) + "");
+				c.setProportion(String.format("%.2f", (count / data.size() * 100)) + "");
 			});
 
 			// tableC increase
@@ -139,24 +137,20 @@ public class ProcessesImpl implements IProcesses {
 				if (tableC1Old.get(c.getType()) != null) {
 					float count = c.getCount();
 					float increase = 0;
-					if (tableC1Old.get(c.getType()).getCount() == 0) {
-						c.setIncrease("no old data");
-					} else {
+					if (tableC1Old.get(c.getType()).getCount() != 0) {
 						increase = (count / tableC1Old.get(c.getType()).getCount() - 1) * 100;
 					}
-					c.setProportion(increase + "");
+					c.setIncrease(String.format("%.2f", increase) + "");
 				}
 			});
 			tableC2.values().stream().forEach(c -> {
 				if (tableC2Old.get(c.getBusinessType()) != null) {
 					float count = c.getCount();
 					float increase = 0;
-					if (tableC2Old.get(c.getBusinessType()).getCount() == 0) {
-						c.setIncrease("no old data");
-					} else {
+					if (tableC2Old.get(c.getBusinessType()).getCount() != 0) {
 						increase = (count / tableC2Old.get(c.getBusinessType()).getCount() - 1) * 100;
 					}
-					c.setProportion(increase + "");
+					c.setIncrease(String.format("%.2f", increase) + "");
 				}
 			});
 
@@ -193,7 +187,7 @@ public class ProcessesImpl implements IProcesses {
 							.toLocalDateTime();
 					LocalDateTime YcPublic = d.getYcPublicDate().toInstant().atZone(ZoneId.systemDefault())
 							.toLocalDateTime();
-					d.setShengChanZhouQi(ChronoUnit.DAYS.between(shouShu, YcPublic));
+					d.setShengChanZhouQi(ChronoUnit.DAYS.between(YcPublic, shouShu));
 				}
 
 				d.setBookName(m.getBookName());
@@ -276,7 +270,7 @@ public class ProcessesImpl implements IProcesses {
 
 	}
 
-	private void processTableB(Date baseTime, Map<String, TableB> tableB, RunTimeData m,
+	private void processTableB(Date from, Date to, Map<String, TableB> tableB, RunTimeData m,
 			Map<String, TableBusinessType> allBusinessTypeMap) {
 		TableB b = tableB.get(m.getBookName());
 		if (b == null) {
@@ -284,7 +278,7 @@ public class ProcessesImpl implements IProcesses {
 			tableB.put(m.getBookName(), b);
 		}
 		b.setBookName(m.getBookName());
-		long diff = baseTime.getTime() - m.getTongZhiRiQi().getTime();
+		long diff = to.getTime() - m.getTongZhiRiQi().getTime();
 		long diffInDays = TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
 		// 90 days
 		if (diffInDays <= 90) {
@@ -302,6 +296,8 @@ public class ProcessesImpl implements IProcesses {
 			b.setBusinessType(type.getBusinessType());
 			b.setType(type.getType());
 		}
+		SimpleDateFormat df = new SimpleDateFormat("yyyy/mm/dd");
+		b.setDateRange(df.format(from) + "~" + df.format(to));
 		// sum (ma yang)
 		b.setMaYang(b.getMaYang() + m.getZongMaYang());
 		// sum (count)
@@ -367,22 +363,5 @@ public class ProcessesImpl implements IProcesses {
 		c.setMaYang(c.getMaYang() + m.getZongMaYang());
 		// sum (count)
 		c.setCount(c.getCount() + 1);
-	}
-
-	@Override
-	public void processForBookAndType(List<BookAndTypeData> data) {
-		if (data != null) {
-			// clean
-			businessTypeRepository.deleteAll();
-
-			data.stream().parallel().forEach(m -> {
-				// save bookandtype
-				TableBusinessType t = new TableBusinessType();
-				t.setName(m.getBookName());
-				t.setBusinessType(m.getBusinessType());
-				t.setType(m.getType());
-				businessTypeRepository.save(t);
-			});
-		}
 	}
 }

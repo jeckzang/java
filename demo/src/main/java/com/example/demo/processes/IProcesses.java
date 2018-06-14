@@ -3,9 +3,8 @@ package com.example.demo.processes;
 import java.util.Date;
 import java.util.List;
 
-import com.example.demo.datasource.BookAndTypeData;
-import com.example.demo.datasource.RuKuData;
-import com.example.demo.datasource.RunTimeData;
+import com.example.demo.datasource.repositories.RuKuData;
+import com.example.demo.datasource.repositories.RunTimeData;
 
 public interface IProcesses {
 	void processForTableA(List<RunTimeData> data);
@@ -14,5 +13,4 @@ public interface IProcesses {
 
 	void processForTableDTableEAndTableF(List<RuKuData> data);
 
-	void processForBookAndType(List<BookAndTypeData> data);
 }

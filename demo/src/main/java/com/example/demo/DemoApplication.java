@@ -13,7 +13,7 @@ import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import com.example.demo.services.StorageProperties;
 
 @SpringBootApplication
-@EnableJpaRepositories("com.example.demo.repositories")
+@EnableJpaRepositories({ "com.example.demo.repositories", "com.example.demo.datasource.repositories" })
 @EnableTransactionManagement
 @EnableConfigurationProperties(StorageProperties.class)
 @EnableAutoConfiguration(exclude = { MultipartAutoConfiguration.class })
