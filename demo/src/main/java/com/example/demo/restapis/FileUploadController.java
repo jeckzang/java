@@ -36,7 +36,7 @@ public class FileUploadController {
 		return storageService.loadAll().map(path -> path.toFile().getName()).collect(Collectors.toList());
 	}
 
-	@RequestMapping(value = "/files/{fileName:.+}", method = RequestMethod.GET)
+	@RequestMapping(value = "/files/{fileName:.+}", method = RequestMethod.GET, produces = "multipart/form-data")
 	@ResponseBody
 	public ResponseEntity<Resource> serveFile(@PathVariable String fileName) {
 		Resource file = storageService.loadAsResource(fileName);

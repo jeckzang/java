@@ -13,4 +13,5 @@ public class AppConfig implements WebMvcConfigurer {
 		registry.addResourceHandler("/static/**").addResourceLocations("classpath:/static/static/");
 		registry.addResourceHandler("/service-worker.js").addResourceLocations("classpath:/static/service-worker.js");
 	}
+
 }

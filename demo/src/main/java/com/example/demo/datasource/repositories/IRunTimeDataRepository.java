@@ -9,4 +9,6 @@ public interface IRunTimeDataRepository extends CrudRepository<RunTimeData, Long
 
 	List<RunTimeData> findByBookNameContainingAndTongZhiRiQiBetween(String bookname, Date from, Date to);
 
+	List<RunTimeData> findByBookNameContainingAndTongZhiRiQiBefore(String bookname, Date to);
+
 }

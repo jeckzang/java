@@ -9,4 +9,5 @@ public interface IRuKuDataRepository extends CrudRepository<RuKuData, Long> {
 
 	List<RuKuData> findByBookNameContainingAndShouShuDateBetween(String bookname, Date from, Date to);
 
+	List<RuKuData> findByBookNameContainingAndShouShuDateBefore(String bookname, Date to);
 }

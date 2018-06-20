@@ -78,15 +78,14 @@ public class RestApiControllerr {
 	StorageService storageService;
 
 	@RequestMapping(value = "/syncData", method = RequestMethod.PUT)
-	public void syncData(@RequestParam("from") long fromDate, @RequestParam("to") long toDate) throws IOException {
+	public void syncData() throws IOException {
 		syncBookAndTypeDataWithFile("types.csv");
-		syncRunTimeDataWithFile(fromDate, toDate, "shengchan.csv");
-		syncRukuDataWithFile(fromDate, toDate, "ruku.csv");
+		syncRunTimeDataWithFile("shengchan.csv");
+		syncRukuDataWithFile("ruku.csv");
 	}
 
 	@RequestMapping(value = "/syncData/shengchanData/{fileName:.+}", method = RequestMethod.PUT)
-	public void syncRunTimeDataWithFile(@RequestParam("from") long fromDate, @RequestParam("to") long toDate,
-			@PathVariable String fileName) throws IOException {
+	public void syncRunTimeDataWithFile(@PathVariable String fileName) throws IOException {
 		Resource r = storageService.loadAsResource(fileName);
 		if (!r.exists()) {
 			throw new StorageFileNotFoundException(fileName);
@@ -106,8 +105,7 @@ public class RestApiControllerr {
 	}
 
 	@RequestMapping(value = "/syncData/rukuData/{fileName:.+}", method = RequestMethod.PUT)
-	public void syncRukuDataWithFile(@RequestParam("from") long fromDate, @RequestParam("to") long toDate,
-			@PathVariable String fileName) throws IOException {
+	public void syncRukuDataWithFile(@PathVariable String fileName) throws IOException {
 		Resource r = storageService.loadAsResource(fileName);
 		if (!r.exists()) {
 			throw new StorageFileNotFoundException(fileName);
@@ -120,15 +118,17 @@ public class RestApiControllerr {
 	@ResponseBody
 	public List<TableA> tableas(@RequestParam("search") String search, @RequestParam("from") long fromDate,
 			@RequestParam("to") long toDate) {
-		Date from = fromDate != 0 ? new Date(fromDate) : new Date();
+		Date from = fromDate != 0 ? new Date(fromDate) : null;
 		Date to = toDate != 0 ? new Date(toDate) : new Date();
 		List<RunTimeData> data = dataSource.getRunTimeDataByDate(search, from, to);
 
-		LocalDateTime oldFrom = from.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime().plusYears(-1);
+		LocalDateTime oldFrom = from != null
+				? from.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime().plusYears(-1)
+				: null;
 		LocalDateTime oldTo = to.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime().plusYears(-1);
 
 		List<RunTimeData> oldData = dataSource.getRunTimeDataByDate(search,
-				Date.from(oldFrom.atZone(ZoneId.systemDefault()).toInstant()),
+				oldFrom == null ? null : Date.from(oldFrom.atZone(ZoneId.systemDefault()).toInstant()),
 				Date.from(oldTo.atZone(ZoneId.systemDefault()).toInstant()));
 		if (data != null) {
 			// table A
@@ -163,7 +163,7 @@ public class RestApiControllerr {
 	public @ResponseBody List<TableD> tableds(@RequestParam("search") String search,
 			@RequestParam("from") long fromDate, @RequestParam("to") long toDate) {
 
-		Date from = fromDate != 0 ? new Date(fromDate) : new Date();
+		Date from = fromDate != 0 ? new Date(fromDate) : null;
 		Date to = toDate != 0 ? new Date(toDate) : new Date();
 		List<RuKuData> ruKu = dataSource.getRuKuDataByDate(search, from, to);
 		if (ruKu != null) {
@@ -194,17 +194,18 @@ public class RestApiControllerr {
 		return responseData;
 	}
 
+	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/exports", method = RequestMethod.GET)
 	public @ResponseBody ResponseEntity<Resource> exprots() throws JsonProcessingException {
 		Map<String, CrudRepository<?, ?>> exports = new HashMap<>();
-		exports.put("tablea.csv", tableARepository);
-		exports.put("tableb.csv", tableBRepository);
-		exports.put("tablec1.csv", tableC1Repository);
-		exports.put("tablec2.csv", tableC2Repository);
-		exports.put("tabled.csv", tableDRepository);
-		exports.put("tablee.csv", tableERepository);
-		exports.put("tablef1.csv", tableF1Repository);
-		exports.put("tablef2.csv", tableF2Repository);
+		exports.put("生产数据原始数据明细表.csv", tableARepository);
+		exports.put("按书名执行分类汇总的明细表.csv", tableBRepository);
+		exports.put("按图书类型执行分类汇总的明细表.csv", tableC1Repository);
+		exports.put("按图书分类执行分类汇总的明细表.csv", tableC2Repository);
+		exports.put("入库数据原始数据明细表.csv", tableDRepository);
+		exports.put("按书名执行分类汇总的明细表.csv", tableERepository);
+		exports.put("按图书类型执行分类汇总的明细表.csv", tableF1Repository);
+		exports.put("按图书分类执行分类汇总的明细表.csv", tableF2Repository);
 		CsvMapper mapper = new CsvMapper();
 
 		storageService.createExportDir();

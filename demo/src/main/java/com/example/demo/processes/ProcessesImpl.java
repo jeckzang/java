@@ -297,7 +297,7 @@ public class ProcessesImpl implements IProcesses {
 			b.setType(type.getType());
 		}
 		SimpleDateFormat df = new SimpleDateFormat("yyyy/mm/dd");
-		b.setDateRange(df.format(from) + "~" + df.format(to));
+		b.setDateRange(from == null ? "----" : df.format(from) + "~" + df.format(to));
 		// sum (ma yang)
 		b.setMaYang(b.getMaYang() + m.getZongMaYang());
 		// sum (count)

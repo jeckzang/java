@@ -81,11 +81,17 @@ public class DataSourceImpl implements IDataSource {
 
 	@Override
 	public List<RunTimeData> getRunTimeDataByDate(String search, Date from, Date to) {
+		if (from == null) {
+			return runTimeDataRepository.findByBookNameContainingAndTongZhiRiQiBefore(search, to);
+		}
 		return runTimeDataRepository.findByBookNameContainingAndTongZhiRiQiBetween(search, from, to);
 	}
 
 	@Override
 	public List<RuKuData> getRuKuDataByDate(String search, Date from, Date to) {
+		if (from == null) {
+			return ruKuDataRepository.findByBookNameContainingAndShouShuDateBefore(search, to);
+		}
 		return ruKuDataRepository.findByBookNameContainingAndShouShuDateBetween(search, from, to);
 	}
 }

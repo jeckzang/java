@@ -7,7 +7,6 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.attribute.PosixFilePermissions;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -118,8 +117,7 @@ public class FileSystemStorageService implements StorageService {
 			if (Files.exists(filePath, LinkOption.NOFOLLOW_LINKS)) {
 				FileUtils.deleteDirectory(filePath.toFile());
 			}
-			Files.createDirectory(filePath,
-					PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-x---")));
+			filePath.toFile().mkdirs();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
