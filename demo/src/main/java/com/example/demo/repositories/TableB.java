@@ -19,6 +19,14 @@ public class TableB {
 	int countFor360;
 	String increase;
 
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
 	public String getBookName() {
 		return bookName;
 	}
@@ -185,10 +193,10 @@ public class TableB {
 
 	@Override
 	public String toString() {
-		return "TableB [bookName=" + bookName + ", DateRange=" + DateRange + ", price=" + price + ", count=" + count
-				+ ", maYang=" + maYang + ", type=" + type + ", businessType=" + businessType + ", countFor90="
-				+ countFor90 + ", countFor180=" + countFor180 + ", countFor360=" + countFor360 + ", increase="
-				+ increase + "]";
+		return "TableB [id=" + id + ", bookName=" + bookName + ", DateRange=" + DateRange + ", price=" + price
+				+ ", count=" + count + ", maYang=" + maYang + ", type=" + type + ", businessType=" + businessType
+				+ ", countFor90=" + countFor90 + ", countFor180=" + countFor180 + ", countFor360=" + countFor360
+				+ ", increase=" + increase + "]";
 	}
 
 }
